@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92a3f7b4-ba66-438e-998e-392fa9dd6007" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DeePy/mlp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DeePy/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DeePy/engine.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DeePy/mlp.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

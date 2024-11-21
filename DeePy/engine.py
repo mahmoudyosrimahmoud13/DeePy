@@ -10,11 +10,12 @@ class Scalar:
         self.name = name
 
         # Internal variables
-        self._children = _children
+        self._children = set(_children)
+        self._op = _op
         self._backward = lambda: None
 
     def __repr__(self):
-        return f"Scalar: {self.name}, Data = {self.data}, grad = {self.grad}"
+        return f"Scalar(data={self.data}, grad={self.grad})"
 
     def __add__(self, other):
         other = other if isinstance(other, Scalar) else Scalar(data=other)
@@ -23,18 +24,13 @@ class Scalar:
         def _backward():
             self.grad += 1 * out.grad
             other.grad += 1 * out.grad
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
     def __sub__(self, other):
-        other = other if isinstance(other, Scalar) else Scalar(data=other)
-        out = Scalar(data=self.data - other.data, _op='-', _children=(self, other))
+        return self + (-other)
 
-        def _backward():
-            self.grad += 1 * out.grad
-            other.grad += 1 * out.grad
-            out._backward = _backward
 
     def __mul__(self, other):
         other = other if isinstance(other, Scalar) else Scalar(data=other)
@@ -43,7 +39,7 @@ class Scalar:
         def _backward():
             self.grad += other.data * out.grad
             other.grad += self.data * out.grad
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -55,13 +51,12 @@ class Scalar:
         :return: the power to any number (int,float)
         """
         other = other if isinstance(other, Scalar) else Scalar(data=other)
-        out = Scalar(data=self.data ** other.data, _op='^', _children=(self, other))
+        out = Scalar(data=self.data ** other.data, _op=f'^{other.data}', _children=(self, other))
 
         def _backward():
-            self.grad += (other.data * self.data ** (other - 1)) * out.grad
-            other.grad += (self.data ** other.data) * np.log(self.data) * out.grad
+            self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
 
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -74,7 +69,7 @@ class Scalar:
 
         def _backward():
             self.grad += out.data * out.grad
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -111,12 +106,12 @@ class Scalar:
         return -1 * self
 
     def tanh(self):
-        t = np.tanh(self.data)
+        t =np.tanh(self.data)
         out = Scalar(data=t, _op='tanh', _children=(self,))
 
-        def _backwards():
-            self.grad += 1 - t ** 2 * out.grad
-            out._backward = _backwards
+        def _backward():
+            self.grad += (1 - t ** 2) * out.grad
+        out._backward = _backward
 
         return out
 
@@ -126,7 +121,7 @@ class Scalar:
 
         def _backward():
             self.grad += s * (1 - s) * out.grad
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -136,7 +131,7 @@ class Scalar:
 
         def _backward():
             self.grad += r * out.grad
-            out._backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -152,7 +147,9 @@ class Scalar:
                 topo.append(v)
 
         build(self)
-
         self.grad = 1
-        for node in topo:
+        i = 0
+        for node in reversed(topo):
+            i+=1
             node._backward()
+
